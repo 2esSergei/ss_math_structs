@@ -10,7 +10,6 @@ namespace ss_ring
     {
         static void Main(string[] args)
         {
-            //change anything
         }
     }
 }
