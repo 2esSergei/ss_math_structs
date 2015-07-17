@@ -1,4 +1,6 @@
-﻿public abstract class ss_gyuru
+﻿using System;
+
+public abstract class ss_gyuru
 {
     protected static double epsilon = 0.000001; //readonly-val
     public static ss_gyuru operator +(ss_gyuru A, ss_gyuru B) { return null; }
@@ -17,9 +19,17 @@ public class ss_matrix : ss_gyuru
     protected int cols;
     public ss_matrix(int rows, int cols)
     {//unsafe constuctor, recommended to use private constructor
-        matrix_tomb = new double[rows * cols];
         this.rows = rows;
         this.cols = cols;
+        try
+        {
+            matrix_tomb = new double[rows * cols];
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("konst kecs" + e.Message);
+            throw new OutOfMemoryException();
+        }
     }
     public static ss_matrix Create(int rows, int cols)
     {//object factory to safe constructor
@@ -30,10 +40,12 @@ public class ss_matrix : ss_gyuru
         try
         {//allocation exception
             return new ss_matrix(rows, cols);
+            //throw new System.OutOfMemoryException();
         }
         catch (System.OutOfMemoryException e)
         {
             System.Console.WriteLine("Object has NULL reference: {0}", e.Message);
+            System.Environment.FailFast( e.Message);
             return null;
         }
     }
@@ -212,9 +224,17 @@ class matrixTester
         System.Collections.Generic.List<ss_matrix> mySSlist = new System.Collections.Generic.List<ss_matrix>();
         for (int i = 0; i < 2147483647; i++)
         {
-            mySSlist.Add(new ss_matrix(2147483647, 2147483647));
+            try
+            {
+                mySSlist.Add(new ss_matrix(2147483647, 2147483647));
+            }
+            catch (OutOfMemoryException e)
+            {
+                System.Console.WriteLine("Kivetel a tombnel." + e.Message);
+                break;
+            }
         }
-        ss_matrix R = new ss_matrix(2147483647, 2147483647);
+        ss_matrix R = ss_matrix.Create(2147483647, 2147483647);
         System.Console.WriteLine(R[2147483646, 2147483646]);
     }
 }
