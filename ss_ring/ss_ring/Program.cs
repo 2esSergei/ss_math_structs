@@ -209,7 +209,12 @@ class matrixTester
         System.Console.WriteLine(M == P);
         System.Console.WriteLine(M);
         ss_matrix Q = ss_matrix.Create(-1, 5);
-        ss_matrix R = new ss_matrix(2147483647, 2147483647);    //(10000000000000000000, 10000000000000000000);
+        System.Collections.Generic.List<ss_matrix> mySSlist = new System.Collections.Generic.List<ss_matrix>();
+        for (int i = 0; i < 2147483647; i++)
+        {
+            mySSlist.Add(new ss_matrix(2147483647, 2147483647));
+        }
+        ss_matrix R = new ss_matrix(2147483647, 2147483647);
         System.Console.WriteLine(R[2147483646, 2147483646]);
     }
 }
