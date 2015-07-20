@@ -10,11 +10,12 @@
     public override int GetHashCode() { return 0; }
     public override string ToString() { return null; }
 }
-public class ss_matrix : ss_gyuru
+public class ss_matrix : ss_gyuru, System.IDisposable
 {
     protected double[] matrix_tomb;
     protected int rows;
     protected int cols;
+    private bool disposed = false;
     public ss_matrix(int rows, int cols)
     {//unsafe constuctor, recommended to use private constructor
         this.rows = rows;
@@ -187,6 +188,53 @@ public class ss_matrix : ss_gyuru
         }
         return s;
     }
+
+
+
+
+
+    public void Dispose()
+    {
+        Dispose(true);
+        // This object will be cleaned up by the Dispose method.
+        // Therefore, you should call GC.SupressFinalize to
+        // take this object off the finalization queue
+        // and prevent finalization code for this object
+        // from executing a second time.
+        System.GC.SuppressFinalize(this);
+    }
+    protected virtual void Dispose(bool disposing)
+    {
+        // Check to see if Dispose has already been called.
+        if (!this.disposed)
+        {
+            // If disposing equals true, dispose all managed
+            // and unmanaged resources.
+            if (disposing)
+            {
+                // Dispose resources.
+                System.Array.Clear(matrix_tomb, 0, matrix_tomb.Length);
+                matrix_tomb = null;
+            }
+            // Note disposing has been done.
+            disposed = true;
+
+        }
+    }
+
+/*
+    protected override void Finalize()
+    {
+        try
+        {
+            System.Array.Clear(matrix_tomb, 0, matrix_tomb.Length);
+        }
+        finally
+        {
+            System.Finalize();
+        }
+    }
+ */
 }
 
 class matrixTester
@@ -228,6 +276,7 @@ class matrixTester
             catch (System.OutOfMemoryException e)
             {
                 System.Console.WriteLine("Kivetel a tombnel. A ciklus {0}. lepeseben. {1}", i, e.Message);
+                mySSlist[ii].Dispose();
                 mySSlist.RemoveAt(ii);
                 ii++;
             }
