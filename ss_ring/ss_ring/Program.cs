@@ -1,6 +1,4 @@
-﻿using System;
-
-public abstract class ss_gyuru
+﻿public abstract class ss_gyuru
 {
     protected static double epsilon = 0.000001; //readonly-val
     public static ss_gyuru operator +(ss_gyuru A, ss_gyuru B) { return null; }
@@ -25,10 +23,10 @@ public class ss_matrix : ss_gyuru
         {
             matrix_tomb = new double[rows * cols];
         }
-        catch (Exception e)
+        catch (System.OutOfMemoryException e)
         {
-            Console.WriteLine("konst kecs" + e.Message);
-            throw new OutOfMemoryException();
+            System.Console.WriteLine("Constructor Out of Memory exception: " + e.Message);
+            throw new System.OutOfMemoryException();
         }
     }
     public static ss_matrix Create(int rows, int cols)
@@ -40,12 +38,10 @@ public class ss_matrix : ss_gyuru
         try
         {//allocation exception
             return new ss_matrix(rows, cols);
-            //throw new System.OutOfMemoryException();
         }
         catch (System.OutOfMemoryException e)
         {
             System.Console.WriteLine("Object has NULL reference: {0}", e.Message);
-            System.Environment.FailFast( e.Message);
             return null;
         }
     }
@@ -224,14 +220,16 @@ class matrixTester
         System.Collections.Generic.List<ss_matrix> mySSlist = new System.Collections.Generic.List<ss_matrix>();
         for (int i = 0; i < 2147483647; i++)
         {
+            int ii = 0;
             try
             {
                 mySSlist.Add(new ss_matrix(2147483647, 2147483647));
             }
-            catch (OutOfMemoryException e)
+            catch (System.OutOfMemoryException e)
             {
-                System.Console.WriteLine("Kivetel a tombnel." + e.Message);
-                break;
+                System.Console.WriteLine("Kivetel a tombnel. A ciklus {0}. lepeseben. {1}", i, e.Message);
+                mySSlist.RemoveAt(ii);
+                ii++;
             }
         }
         ss_matrix R = ss_matrix.Create(2147483647, 2147483647);
