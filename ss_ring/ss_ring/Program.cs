@@ -1,6 +1,6 @@
 ﻿public abstract class ss_gyuru
 {
-    protected static double epsilon = 0.000001; //readonly-val
+    protected static readonly double epsilon = 0.000001; //readonly-val
     public static ss_gyuru operator +(ss_gyuru A, ss_gyuru B) { return null; }
     public static ss_gyuru operator -(ss_gyuru A, ss_gyuru B) { return null; }
     public static ss_gyuru operator *(ss_gyuru A, ss_gyuru B) { return null; }
@@ -16,13 +16,13 @@ public class ss_matrix : ss_gyuru, System.IDisposable
     protected int rows;
     protected int cols;
     private bool disposed = false;
-    public ss_matrix(int rows, int cols)
-    {//unsafe constuctor, recommended to use private constructor
-        this.rows = rows;
-        this.cols = cols;
+    private ss_matrix(int rows, int cols)
+    {//unsafe constuctor so it is private
         try
         {
             matrix_tomb = new double[rows * cols];
+            this.rows = rows;
+            this.cols = cols;
         }
         catch (System.OutOfMemoryException e)
         {
@@ -31,7 +31,7 @@ public class ss_matrix : ss_gyuru, System.IDisposable
         }
     }
     public static ss_matrix Create(int rows, int cols)
-    {//object factory to safe constructor
+    {//object factory to safe constructor, maybe should handle System.Exception
         if (rows < 1 || cols < 1)
         {//invalid row or col number
             return null;
@@ -80,17 +80,39 @@ public class ss_matrix : ss_gyuru, System.IDisposable
         {
             if (i < 0 || j < 0|| i >= this.rownumber || j >= this.colnumber)
             {
-                throw new System.ArgumentOutOfRangeException("");
+                string message = "READ ELEMENT: Not exist element with index of (" + i + ", " + j + ")";
+                throw new System.ArgumentOutOfRangeException(message);
             }
-            return matrix_tomb[i * this.cols + j];
+            else
+            {
+                return matrix_tomb[i * this.cols + j];
+            }
         }
         set
         {
-            matrix_tomb[i * this.cols + j] = value;
+            if (i < 0 || j < 0 || i >= this.rownumber || j >= this.colnumber)
+            {
+                string message = "WRITE ELEMENT: Not exist element with index of (" + i + ", " + j + ")";
+                throw new System.ArgumentOutOfRangeException(message);
+            }
+            else
+            {
+                matrix_tomb[i * this.cols + j] = value;
+            }
         }
     }
     public static ss_matrix operator +(ss_matrix TEMP1, ss_matrix TEMP2)	//sor-oszlop elteres kivetel, null referencia kivetel
     {
+        if(TEMP1.rownumber != TEMP2.rownumber || TEMP1.colnumber != TEMP2.colnumber)
+        {//handle only part of null matrix situation
+            string message = "Operation fail: can not use '+' operator for matrix (" + TEMP1.rownumber + " x " + TEMP1.colnumber + ") and matrix ("
+                + TEMP2.rownumber + " x " + TEMP2.colnumber + ")";
+            throw new System.Exception(message);
+        }
+        if(TEMP1 == null || TEMP2 == null)
+        {//this protect when all of them is null
+            return null;
+        }
         ss_matrix TEMP3 = new ss_matrix(TEMP1.rownumber, TEMP1.colnumber);
         for (int i = 0; i < TEMP1.rownumber; i++)
         {
@@ -103,6 +125,16 @@ public class ss_matrix : ss_gyuru, System.IDisposable
     }
     public static ss_matrix operator -(ss_matrix TEMP1, ss_matrix TEMP2)	//sor-oszlop elteres kivetel, null refderencia kivetel
     {
+        if (TEMP1.rownumber != TEMP2.rownumber || TEMP1.colnumber != TEMP2.colnumber)
+        {//handle only part of null matrix situation
+            string message = "Operation fail: can not use '-' operator for matrix (" + TEMP1.rownumber + " x " + TEMP1.colnumber + ") and matrix ("
+                + TEMP2.rownumber + " x " + TEMP2.colnumber + ")";
+            throw new System.Exception(message);
+        }
+        if (TEMP1 == null || TEMP2 == null)
+        {//this protect when all of them is null
+            return null;
+        }
         ss_matrix TEMP3 = new ss_matrix(TEMP1.rownumber, TEMP1.colnumber);
         for (int i = 0; i < TEMP1.rownumber; i++)
         {
@@ -188,11 +220,6 @@ public class ss_matrix : ss_gyuru, System.IDisposable
         }
         return s;
     }
-
-
-
-
-
     public void Dispose()
     {
         Dispose(true);
@@ -218,52 +245,37 @@ public class ss_matrix : ss_gyuru, System.IDisposable
             }
             // Note disposing has been done.
             disposed = true;
-
         }
     }
-
-/*
-    protected override void Finalize()
-    {
-        try
-        {
-            System.Array.Clear(matrix_tomb, 0, matrix_tomb.Length);
-        }
-        finally
-        {
-            System.Finalize();
-        }
-    }
- */
 }
 
 class matrixTester
 {
     public static void Main()
     {
-        ss_matrix M = new ss_matrix(5, 4);
-        ss_matrix N = new ss_matrix(4, 5);
+        ss_matrix M = ss_matrix.Create(5, 4);
+        ss_matrix N = ss_matrix.Create(4, 5);
+        ss_matrix P = ss_matrix.Create(5, 4);
         for (int i = 0; i < M.rownumber; i++)
         {
             for (int j = 0; j < M.colnumber; j++)
             {
                 M[i, j] = 1.00;
                 N[j, i] = 1;
+                P[i, j] = 1;
             }
         }
-        ss_matrix O = new ss_matrix(5, 5);
+        //M = M - N;
+        ss_matrix O = ss_matrix.Create(5, 5);
         O = M * N;
-        for (int i = 0; i < O.rownumber; i++)
-        {
-            for (int j = 0; j < O.colnumber; j++)
-            {
-                System.Console.Write("{0} ", O[i, j]);
-            }
-            System.Console.WriteLine();
-        }
-        ss_matrix P = M;
+        System.Console.WriteLine(O);
+        System.Console.WriteLine(M == P);
+        P[4, 3] = 3;
         System.Console.WriteLine(M == P);
         System.Console.WriteLine(M);
+        System.Console.WriteLine(P);
+        //double x = P[5, 3];
+        //P[5, 3] = 5;
         ss_matrix Q = ss_matrix.Create(-1, 5);
         System.Collections.Generic.List<ss_matrix> mySSlist = new System.Collections.Generic.List<ss_matrix>();
         for (int i = 0; i < 2147483647; i++)
@@ -271,7 +283,7 @@ class matrixTester
             int ii = 0;
             try
             {
-                mySSlist.Add(new ss_matrix(2147483647, 2147483647));
+                mySSlist.Add(ss_matrix.Create(2147483647, 2147483647));
             }
             catch (System.OutOfMemoryException e)
             {
