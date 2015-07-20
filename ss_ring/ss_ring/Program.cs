@@ -1,6 +1,9 @@
-﻿public abstract class ss_gyuru
+﻿/// <summary>
+/// Valamit irtam ide.
+/// </summary>
+public abstract class ss_gyuru
 {
-    protected static readonly double epsilon = 0.000001; //readonly-val
+    protected static readonly double epsilon = 0.000001;
     public static ss_gyuru operator +(ss_gyuru A, ss_gyuru B) { return null; }
     public static ss_gyuru operator -(ss_gyuru A, ss_gyuru B) { return null; }
     public static ss_gyuru operator *(ss_gyuru A, ss_gyuru B) { return null; }
@@ -74,12 +77,12 @@ public class ss_matrix : ss_gyuru, System.IDisposable
             }
         }
     }
-    public double this[int i, int j]	//tulindexeles kivetel
+    public double this[int i, int j]
     {
         get
         {
             if (i < 0 || j < 0|| i >= this.rownumber || j >= this.colnumber)
-            {
+            {//Out of Range
                 string message = "READ ELEMENT: Not exist element with index of (" + i + ", " + j + ")";
                 throw new System.ArgumentOutOfRangeException(message);
             }
@@ -91,7 +94,7 @@ public class ss_matrix : ss_gyuru, System.IDisposable
         set
         {
             if (i < 0 || j < 0 || i >= this.rownumber || j >= this.colnumber)
-            {
+            {//Out of Range
                 string message = "WRITE ELEMENT: Not exist element with index of (" + i + ", " + j + ")";
                 throw new System.ArgumentOutOfRangeException(message);
             }
@@ -101,10 +104,10 @@ public class ss_matrix : ss_gyuru, System.IDisposable
             }
         }
     }
-    public static ss_matrix operator +(ss_matrix TEMP1, ss_matrix TEMP2)	//sor-oszlop elteres kivetel, null referencia kivetel
+    public static ss_matrix operator +(ss_matrix TEMP1, ss_matrix TEMP2)
     {
         if(TEMP1.rownumber != TEMP2.rownumber || TEMP1.colnumber != TEMP2.colnumber)
-        {//handle only part of null matrix situation
+        {//Addition mathematical rules, handle only part of null matrix situation
             string message = "Operation fail: can not use '+' operator for matrix (" + TEMP1.rownumber + " x " + TEMP1.colnumber + ") and matrix ("
                 + TEMP2.rownumber + " x " + TEMP2.colnumber + ")";
             throw new System.Exception(message);
@@ -123,8 +126,8 @@ public class ss_matrix : ss_gyuru, System.IDisposable
         }
         return TEMP3;
     }
-    public static ss_matrix operator -(ss_matrix TEMP1, ss_matrix TEMP2)	//sor-oszlop elteres kivetel, null refderencia kivetel
-    {
+    public static ss_matrix operator -(ss_matrix TEMP1, ss_matrix TEMP2)
+    {//Addition mathematical rules: rows and cols value is same
         if (TEMP1.rownumber != TEMP2.rownumber || TEMP1.colnumber != TEMP2.colnumber)
         {//handle only part of null matrix situation
             string message = "Operation fail: can not use '-' operator for matrix (" + TEMP1.rownumber + " x " + TEMP1.colnumber + ") and matrix ("
@@ -146,7 +149,17 @@ public class ss_matrix : ss_gyuru, System.IDisposable
         return TEMP3;
     }
     public static ss_matrix operator *(ss_matrix TEMP1, ss_matrix TEMP2)	//sor-oszlop elteres kivetel, null refderencia kivetel
-    {
+    {//Multiplication mathematical rules, first's cols vaule equal the secund's rows value
+        if (TEMP1 == null || TEMP2 == null)
+        {//if one of them is null, than solution is null (it is better choose like than at +/- operator)
+            return null;
+        }
+        if( TEMP1.colnumber != TEMP2.rownumber)
+        {
+            string message = "Operation fail: can not use '*' operator for matrix (" + TEMP1.rownumber + " x " + TEMP1.colnumber + ") and matrix ("
+                + TEMP2.rownumber + " x " + TEMP2.colnumber + ")";
+            throw new System.Exception(message);
+        }
         ss_matrix TEMP3 = new ss_matrix(TEMP1.rownumber, TEMP2.colnumber);
         for (int i = 0; i < TEMP1.rownumber; i++)
         {
@@ -161,7 +174,7 @@ public class ss_matrix : ss_gyuru, System.IDisposable
         return TEMP3;
     }
     public override bool Equals(System.Object obj)
-    {
+    {//this is safe
         if (obj == null)
         {
             return false;
@@ -179,7 +192,7 @@ public class ss_matrix : ss_gyuru, System.IDisposable
         {
             for (int j = 0; j < TEMP1.colnumber; j++)
             {
-                if (TEMP1[i, j] - this[i, j] > ss_gyuru.epsilon || this[i, j] - TEMP1[i, j] > epsilon)    //(this[i, j] != TEMP1[i, j])
+                if (TEMP1[i, j] - this[i, j] > ss_gyuru.epsilon || this[i, j] - TEMP1[i, j] > epsilon)
                 {
                     return false;
                 }
@@ -200,7 +213,7 @@ public class ss_matrix : ss_gyuru, System.IDisposable
         return !(TEMP1 == TEMP2);
     }
     public override string ToString()
-    {
+    {//string builder kell
         string s = "";
         if (this == null)
         {
@@ -265,8 +278,9 @@ class matrixTester
                 P[i, j] = 1;
             }
         }
-        //M = M - N;
+        //M = M + N;
         ss_matrix O = ss_matrix.Create(5, 5);
+        //ss_matrix S = M * O;
         O = M * N;
         System.Console.WriteLine(O);
         System.Console.WriteLine(M == P);
