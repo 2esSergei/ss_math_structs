@@ -39,4 +39,9 @@ namespace SSAS
     }
     public interface IRing : IGroup, IHalf_Group { }
     public interface IBody : IAdditional_Group, IMultiplication_Group { }
+    public interface ILinearSpace<T> : IGroup
+    {
+        Object MultiplyScalar(T scalar, ref Object ELEMNET);
+        Object MultiplyScalar(ref Object ELEMENT, T scalar);
+    }
 }
