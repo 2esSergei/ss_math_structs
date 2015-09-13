@@ -1,5 +1,6 @@
 ﻿/// <summary>
 /// Valamit irtam ide.
+/// meg valamit
 /// </summary>
 public abstract class ss_gyuru
 {
